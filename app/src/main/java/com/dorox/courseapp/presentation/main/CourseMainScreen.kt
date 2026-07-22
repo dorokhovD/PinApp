@@ -95,12 +95,10 @@ fun CourseMainScreen() {
                 )
             }
             composable(route = Screen.Account.route) {
-                Scaffold {
                     Text(
-                        modifier = Modifier.padding(it),
+                        modifier = Modifier.padding(paddingValues),
                         text = "Аккаунт"
                     )
-                }
             }
             composable(route = Screen.Login.route) {
                 LoginScreen(
