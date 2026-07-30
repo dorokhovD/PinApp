@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CourseApp"
+rootProject.name = "PinApp"
 include(":app")
 
  
