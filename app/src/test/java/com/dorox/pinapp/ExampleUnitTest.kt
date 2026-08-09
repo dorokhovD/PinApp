@@ -1,4 +1,4 @@
-package com.dorox.courseapp
+package com.dorox.pinapp
 
 import org.junit.Test
 
