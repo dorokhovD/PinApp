@@ -1,4 +1,4 @@
-package com.dorox.courseapp.ui.icons
+package com.dorox.pinapp.ui.icons
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 @Suppress("CheckReturnValue")
-public val ic_account: ImageVector
+public val ic_profile: ImageVector
     get() {
         if (_person != null) {
             return _person!!

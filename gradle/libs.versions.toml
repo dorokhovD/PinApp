@@ -2,8 +2,13 @@
 agp = "9.1.1"
 coilCompose = "3.5.0"
 converterGson = "3.0.0"
+converterGsonVersion = "2.9.0"
 coreKtx = "1.19.0"
+coreSplashscreen = "1.2.0"
 datastorePreferences = "1.2.1"
+firebaseAuthKtx = "23.2.1"
+firebaseBom = "34.16.0"
+firebaseStorageKtx = "21.0.2"
 hiltCompiler = "2.60.1"
 hiltNavigationCompose = "1.4.0"
 junit = "4.13.2"
@@ -15,19 +20,31 @@ lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 kotlin = "2.4.10"
 composeBom = "2026.02.01"
+material3 = "1.4.0"
+material3Navigation = "1.4.0"
 navigationCompose = "2.9.8"
 retrofit = "3.0.0"
 ksp = "2.3.4"
 converterKotlinxSerialization = "3.0.0"
 
 [libraries]
+androidx-compose-material3-navigation = { module = "androidx.compose.material3:material3-navigation", version.ref = "material3Navigation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+converter-gson-v290 = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGsonVersion" }
 converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "converterKotlinxSerialization" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+google-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltCompiler" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltCompiler" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
