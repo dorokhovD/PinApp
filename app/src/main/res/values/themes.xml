@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.PinApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.PinApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/orange_100</item>
+        <item name="postSplashScreenTheme">@style/Theme.PinApp</item>
+    </style>
 </resources>

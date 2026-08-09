@@ -1,4 +1,4 @@
-package com.dorox.courseapp.ui.theme
+package com.dorox.pinapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

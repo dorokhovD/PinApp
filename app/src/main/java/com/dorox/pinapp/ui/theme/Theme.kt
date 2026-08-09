@@ -1,8 +1,6 @@
-package com.dorox.courseapp.ui.theme
+package com.dorox.pinapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -19,16 +17,19 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color.White,
-    //onPrimary = Color(0xFF12B956),
+    primary = Orange200,
+    onPrimary = Color.White,
 
-    secondary = Green100,
-    onSecondary = Color.White,
-    tertiary = Pink40,
+    secondary = Orange100,
+    onSecondary = White100,
 
-    background = Black100,
-    onBackground = Color.White,
+    //background = Gray200,
+    background = Color(0xFFFFFFFF),
+    //onBackground = Gray300,
+    onBackground = Color(0xFF4d4c4d),
 
+    surface = White100,
+    onSurface = Color(0xFF1C1B1F),
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -36,12 +37,11 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
+
     */
 )
-
 @Composable
-fun CourseAppTheme(
+fun PinAppTheme(
     darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
