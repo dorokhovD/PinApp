@@ -4,17 +4,17 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
-
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.dorox.courseapp"
+    namespace = "com.dorox.pinapp"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.dorox.courseapp"
+        applicationId = "com.dorox.pinapp"
         minSdk = 27
         targetSdk = 36
         versionCode = 1
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -60,13 +61,18 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    implementation(libs.converter.gson.v290)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.converter.kotlinx.serialization)
     implementation(libs.coil.compose)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.androidx.core.splashscreen)
+
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "894420415067",
+    "project_id": "pinapp-a8970",
+    "storage_bucket": "pinapp-a8970.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:894420415067:android:e2566cf5bea67db7f0c57e",
+        "android_client_info": {
+          "package_name": "com.dorox.pinapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZdVm5Ki7coTBncuttN3sf9strhLwZ83I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
