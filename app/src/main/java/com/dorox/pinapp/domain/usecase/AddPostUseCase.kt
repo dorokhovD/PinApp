@@ -1,15 +1,15 @@
 package com.dorox.pinapp.domain.usecase
 
-import com.dorox.pinapp.data.repository.FireBasePostRepository
+import android.net.Uri
 import com.dorox.pinapp.domain.entity.Post
-import com.dorox.pinapp.domain.entity.Status
+import com.dorox.pinapp.domain.repository.PostsRepository
 import javax.inject.Inject
 
 class AddPostUseCase @Inject constructor(
-    private val repository: FireBasePostRepository
+    private val repository: PostsRepository
 ) {
 
-    suspend operator fun invoke(post: Post) {
-        repository.createPost(post = post)
+    suspend operator fun invoke(post: Post, imageUri: Uri? = null) {
+        repository.createPost(post = post, imageUri = imageUri)
     }
 }
