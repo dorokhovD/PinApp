@@ -1,11 +1,13 @@
 package com.dorox.pinapp.presentation.screen.creation
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.toUri
 import com.dorox.pinapp.domain.entity.Category
-import com.dorox.pinapp.domain.entity.Post
 import com.dorox.pinapp.domain.entity.Status
+import com.dorox.pinapp.domain.mapper.CreatePostMapper
 import com.dorox.pinapp.domain.usecase.AddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +35,7 @@ class CreatePostViewModel @Inject constructor(
             is CreatePostCommand.AddImage -> {
                 _state.update { prevState ->
                     if (prevState is CreatePostState.Creation) {
-                        prevState.copy(imageUrl = command.uri.toString())
+                        prevState.copy(imageUri = command.uri.toString())
                     } else {
                         prevState
                     }
@@ -43,8 +45,8 @@ class CreatePostViewModel @Inject constructor(
             is CreatePostCommand.DeleteImage -> {
                 _state.update { prevState ->
                     if (prevState is CreatePostState.Creation) {
-                        prevState.copy(imageUrl = "")
-                    }else {
+                        prevState.copy(imageUri = null)
+                    } else {
                         prevState
                     }
                 }
@@ -90,7 +92,11 @@ class CreatePostViewModel @Inject constructor(
                 viewModelScope.launch {
                     _state.update { prevState ->
                         if (prevState is CreatePostState.Creation) {
-                            addPostUseCase(post = prevState.toPost())
+                            val post = CreatePostMapper.toPost(prevState)
+                            addPostUseCase(
+                                post = post,
+                                imageUri = post.imageUrl?.toUri()
+                            )
                             CreatePostState.Finished
                         } else {
                             prevState
@@ -116,6 +122,17 @@ class CreatePostViewModel @Inject constructor(
                     }
                 }
             }
+
+            is CreatePostCommand.InputReward -> {
+                _state.update { prevState ->
+                    if (prevState is CreatePostState.Creation) {
+                        prevState.copy(reward = command.reward)
+                    } else {
+                        prevState
+                    }
+
+                }
+            }
         }
     }
 }
@@ -136,6 +153,8 @@ sealed interface CreatePostCommand {
 
     data class AddImage(val uri: Uri) : CreatePostCommand
 
+    data class InputReward(val reward: String) : CreatePostCommand
+
     data object DeleteImage : CreatePostCommand
 
     data object Save : CreatePostCommand
@@ -153,9 +172,9 @@ sealed interface CreatePostState {
         val category: Category = Category.NOT_SELECTED,
         val contact: String = "",
         val address: String = "",
-        val imageUrl: String = "",
+        val imageUri: String? = null,
         val reward: String = "",
-        val isClosed: Boolean = false
+        val isClosed: Boolean = false,
     ) : CreatePostState {
 
         val isSaveEnable: Boolean
@@ -171,20 +190,6 @@ sealed interface CreatePostState {
                     }
                 }
             }
-
-        fun toPost() : Post {
-            return Post(
-                title = title,
-                description = description,
-                status = status.text,
-                category = category.text,
-                contact = contact,
-                address = address,
-                imageUrl = imageUrl,
-                reward = reward,
-                isClosed = false
-            )
-        }
     }
     data object Finished : CreatePostState
 }

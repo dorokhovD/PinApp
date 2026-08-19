@@ -12,7 +12,7 @@ data class Post(
     val category: String = "",
     val contact: String = "",
     val address: String = "",
-    val imageUrl: String = "",
+    val imageUrl: String? = "",
     val reward: String = "",
     val createdAt: Timestamp = Timestamp.now(),
     @PropertyName("closed")

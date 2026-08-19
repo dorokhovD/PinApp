@@ -14,7 +14,7 @@ fun Timestamp.toDateString(): String {
     val instant = Instant.ofEpochSecond(this.seconds, this.nanoseconds.toLong())
 
     val formatter = DateTimeFormatter
-        .ofPattern("d MMM", Locale.forLanguageTag("ru"))
+        .ofPattern("d MMMM", Locale.forLanguageTag("ru"))
         .withZone(ZoneId.systemDefault())
 
     return formatter.format(instant)

@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -59,6 +62,7 @@ import com.dorox.pinapp.R
 import com.dorox.pinapp.domain.entity.Category
 import com.dorox.pinapp.domain.entity.Status
 import com.dorox.pinapp.ui.theme.Black100
+import com.dorox.pinapp.ui.theme.CustomTextButton
 import com.dorox.pinapp.ui.theme.Gray100
 import com.dorox.pinapp.ui.theme.Gray200
 import com.dorox.pinapp.ui.theme.Gray400
@@ -97,7 +101,6 @@ fun CreatePostScreen(
                         .padding(horizontal = 16.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Тип *")
@@ -106,7 +109,6 @@ fun CreatePostScreen(
                             viewModel.processCommand(command = CreatePostCommand.SelectStatus(it))
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Категория *")
@@ -116,7 +118,6 @@ fun CreatePostScreen(
                             viewModel.processCommand(command = CreatePostCommand.SelectCategory(it))
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Заголовок *")
@@ -128,7 +129,6 @@ fun CreatePostScreen(
                             viewModel.processCommand(CreatePostCommand.InputTitle(it))
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Описание *")
@@ -140,10 +140,9 @@ fun CreatePostScreen(
                             viewModel.processCommand(CreatePostCommand.InputDescription(it))
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    LabelText("Место *")
+                    LabelText("Адрес *")
 
                     CustomOutlinedTextField(
                         text = currentState.address,
@@ -159,7 +158,6 @@ fun CreatePostScreen(
                             )
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Контакт *")
@@ -171,12 +169,11 @@ fun CreatePostScreen(
                             viewModel.processCommand(CreatePostCommand.InputContact(it))
                         }
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Фото")
 
-                    if (currentState.imageUrl.isEmpty()) {
+                    if (currentState.imageUri == null) {
                         AddImageBox(
                             onAddImageClick = {
                                 imagePicker.launch("image/*")
@@ -184,13 +181,12 @@ fun CreatePostScreen(
                         )
                     } else {
                         ShowImageBox(
-                            imageUrl = currentState.imageUrl,
+                            imageUrl = currentState.imageUri.toString(),
                             onDeleteImageClick = {
                                 viewModel.processCommand(CreatePostCommand.DeleteImage)
                             }
                         )
                     }
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LabelText("Вознаграждение")
@@ -199,20 +195,19 @@ fun CreatePostScreen(
                         text = currentState.reward,
                         placeholderText = "Например: 1000 Р (необязательно)",
                         onTextChanged = {
-                            viewModel.processCommand(CreatePostCommand.InputContact(it))
+                            viewModel.processCommand(CreatePostCommand.InputReward(it))
                         }
                     )
-
-
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    ConfirmTextButton(
-                        enabled = currentState.isSaveEnable,
-                        onSavePostClick = {
-                            viewModel.processCommand(CreatePostCommand.Save)
-                        }
-                    )
 
+                    CustomTextButton(
+                        onClick = {
+                            viewModel.processCommand(CreatePostCommand.Save)
+                        },
+                        text = "Опубликовать",
+                        enabled = currentState.isSaveEnable
+                    )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
@@ -223,57 +218,27 @@ fun CreatePostScreen(
 }
 
 @Composable
-fun ConfirmTextButton(
-    modifier: Modifier = Modifier,
-    enabled: Boolean,
-    onSavePostClick: () -> Unit
-) {
-    TextButton(
-        modifier = modifier
-            .fillMaxWidth(),
-        enabled = enabled,
-        shape = CircleShape,
-        onClick = {
-            onSavePostClick()
-        },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Orange200,
-            contentColor = White100,
-            disabledContentColor = Gray200,
-            disabledContainerColor = Gray50
-        ),
-        elevation = buttonElevation(
-            defaultElevation = 2.dp
-        )
-
-    ) {
-        Text(
-            text = "Разместить объявление",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
 fun ShowImageBox(
     modifier: Modifier = Modifier,
     imageUrl: String,
     onDeleteImageClick: () -> Unit
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
         AsyncImage(
             modifier = Modifier
-                .fillMaxWidth()
                 .border(
                     border = BorderStroke(
-                        width = 2.dp,
+                        width = 1.dp,
                         color = Orange200,
                     ),
                     shape = RoundedCornerShape(16.dp)
-                ),
+                )
+                .heightIn(max = 250.dp)
+                .clip(RoundedCornerShape(16.dp)),
+                //.clip(RoundedCornerShape(16.dp)),
 
             model = imageUrl,
             contentDescription = null,
@@ -289,7 +254,7 @@ fun ShowImageBox(
                 },
             imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
             contentDescription = null,
-            tint = Gray400
+            tint = Black100
         )
     }
 }
@@ -308,7 +273,7 @@ private fun AddImageBox(
             .background(color = Orange100.copy(0.5f))
             .border(
                 border = BorderStroke(
-                    width = 2.dp,
+                    width = 1.dp,
                     color = Orange200,
                 ),
                 shape = RoundedCornerShape(16.dp)
@@ -340,8 +305,6 @@ private fun AddImageBox(
                 fontSize = 12.sp
             )
         }
-
-
     }
 }
 
@@ -352,12 +315,11 @@ private fun SelectCategoryFilterChips(
     var selectedCategory by remember { mutableStateOf(Category.NOT_SELECTED) }
     val categories = Category.entries.filter { it != Category.NOT_SELECTED }.toList()
 
-    FlowRow(
+    Row(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Absolute.Left,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        itemVerticalAlignment = Alignment.Top
+        horizontalArrangement = Arrangement.Start,
+        //verticalAlignment = Alignment.Start,
     ) {
         categories.forEachIndexed { index, category ->
             FilterChip(
@@ -406,14 +368,14 @@ private fun CustomOutlinedTextField(
         placeholder = {
             Text(
                 text = placeholderText,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         trailingIcon = trailingIcon,
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+            focusedBorderColor = Orange200,
+            unfocusedBorderColor = Gray100,
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
             unfocusedPlaceholderColor = Gray100,
@@ -429,11 +391,11 @@ private fun LabelText(
     Text(
         modifier = Modifier.padding(bottom = 8.dp),
         text = text,
-        color = Black100,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Medium
+//        color = Black100,
+//        fontSize = 14.sp,
+//        fontWeight = FontWeight.Medium
+        style = MaterialTheme.typography.labelLarge
     )
-
 }
 
 @Composable
@@ -449,7 +411,7 @@ private fun SelectStatusSegmentedButton(
     ) {
         statuses.forEachIndexed { index, status ->
             SegmentedButton(
-                modifier = Modifier.height(70.dp),
+                modifier = Modifier.height(48.dp),
                 shape = SegmentedButtonDefaults.itemShape(
                     index = index,
                     count = statuses.size,
@@ -463,7 +425,7 @@ private fun SelectStatusSegmentedButton(
                 label = {
                     Text(
                         text = status.text,
-                        fontSize = 18.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 },
                 icon = {
@@ -471,37 +433,18 @@ private fun SelectStatusSegmentedButton(
                         active = false
                     )
                 },
-                border = BorderStroke(
-                    width = 2.dp,
-                    color = Orange200
-                ),
-                colors = SegmentedButtonDefaults.colors()
+//                border = BorderStroke(
+//                    width = 1.dp,
+//                ),
+                colors = SegmentedButtonDefaults.colors(
+                    activeBorderColor = Orange200,
+                    activeContentColor = Orange200,
+                    activeContainerColor = Orange100,
+                    inactiveBorderColor = Gray100,
+                    inactiveContentColor = Black100,
+                    inactiveContainerColor = White100
+                )
             )
         }
     }
 }
-
-
-
-//@Preview
-//@Composable
-//fun PreviewCreatePostScreen() {
-//    PinAppTheme() {
-//
-//        val previewPadding = PaddingValues(
-//            start = 16.dp,
-//            top = 16.dp,
-//            end = 16.dp,
-//            bottom = 16.dp
-//        )
-//
-////        CreatePostScreen(
-////            paddingValues = previewPadding
-////        )
-//        CreatePostScreen(
-//            paddingValues = PaddingValues(),
-//            onFinished = {  }
-//        )
-//    }
-//}
-
