@@ -1,17 +1,17 @@
 package com.dorox.pinapp.domain.repository
 
+import android.net.Uri
 import com.dorox.pinapp.domain.entity.Post
 import kotlinx.coroutines.flow.Flow
 
-interface PostRepository {
+interface PostsRepository {
 
-    suspend fun createPost(post: Post)
+    suspend fun createPost(post: Post, imageUri: Uri? = null): Result<String>
 
-    // получение поста для отображения в BottomSheet
+    // получение поста для отображения в ModalBottomSheet
     suspend fun getPostByPostId(postId: String) : Post // получение поста
 
-    // Получение
     suspend fun getPostsByUserId(userId: String) : Flow<List<Post>>
 
-    fun getAllPosts(): Flow<List<Post>>
+    suspend fun getAllPosts(): List<Post>
 }
