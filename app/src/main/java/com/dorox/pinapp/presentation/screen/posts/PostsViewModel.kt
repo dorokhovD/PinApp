@@ -1,15 +1,19 @@
 package com.dorox.pinapp.presentation.screen.posts
 
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dorox.pinapp.domain.entity.Category
 import com.dorox.pinapp.domain.entity.Post
 import com.dorox.pinapp.domain.usecase.GetAllPostsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.filter
 
 @HiltViewModel
 class PostsViewModel @Inject constructor(
@@ -91,6 +95,14 @@ class PostsViewModel @Inject constructor(
                         }
                     }
                 }
+
+                is PostsCommand.SelectCategory -> {
+                    viewModelScope.launch {
+                        _state.update {
+                            it.copy(selectedCategory = command.category)
+                        }
+                    }
+                }
             }
     }
 
@@ -99,12 +111,24 @@ class PostsViewModel @Inject constructor(
 sealed interface PostsCommand {
 
     data class InputSearchQuery(val query: String) : PostsCommand
-
+    data class SelectCategory(val category: Category) : PostsCommand
 }
 
 data class PostsState(
     val query: String = "",
+    val selectedCategory: Category = Category.ALL,
     val posts: List<Post> = emptyList(),
     val error: String? = null,
     val isLoading: Boolean = false
-)
+) {
+
+    val filteredPosts: List<Post>
+        get() {
+            return when(selectedCategory) {
+                Category.ALL -> posts
+                else -> posts.filter {
+                    it.category == selectedCategory.text
+                }
+            }
+        }
+}
