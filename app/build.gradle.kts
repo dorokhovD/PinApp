@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,7 +7,16 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     id("com.google.gms.google-services")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
+
+private val propertiesFile = rootProject.file("secrets.properties")
+private val properties = propertiesFile.inputStream().use {
+    Properties().apply {
+        load(it)
+    }
+}
+private val mapsApiKey = properties.getProperty("MAPS_API_KEY")
 
 android {
     namespace = "com.dorox.pinapp"
@@ -21,6 +32,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+//        buildConfigField("String", "MAPS_API_KEY", "\"${mapsApiKey}\"")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -38,6 +52,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        viewBinding = true
     }
 }
 
@@ -51,6 +67,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
+    implementation(libs.play.services.maps)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,4 +96,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
+    implementation(libs.maps.compose.widgets)
+    implementation(libs.places)
 }
