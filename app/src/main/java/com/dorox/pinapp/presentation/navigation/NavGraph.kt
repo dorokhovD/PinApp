@@ -24,7 +24,8 @@ fun NavGraph(
     postsScreenContent: @Composable () -> Unit,
     mapScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
-    createPostScreenContent: @Composable () -> Unit
+    createPostScreenContent: @Composable () -> Unit,
+    authScreenContent: @Composable () -> Unit
 ) {
 
 
@@ -36,8 +37,8 @@ fun NavGraph(
 
         composable(
             route = Screen.Posts.route,
-            enterTransition = { fadeIn() + slideInHorizontally() },
-            exitTransition = { fadeOut() + slideOutHorizontally() }
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut()  }
         ) {
             postsScreenContent()
         }
@@ -51,25 +52,36 @@ fun NavGraph(
         }
 
 
-        composable(route = Screen.Map.route,
-            enterTransition = { fadeIn() + slideInHorizontally() },
-            exitTransition = { fadeOut() + slideOutHorizontally() }
+        composable(
+            route = Screen.Map.route,
+            enterTransition = { fadeIn()  },
+            exitTransition = { fadeOut()  }
         ) {
             mapScreenContent()
         }
 
-        composable(route = Screen.Profile.route,
-            enterTransition = { fadeIn() + slideInHorizontally() },
-            exitTransition = { fadeOut() + slideOutHorizontally() }
-            ) {
+        composable(
+            route = Screen.Profile.route,
+//            enterTransition = { fadeIn() },
+//            exitTransition = { fadeOut() }
+        ) {
             profileScreenContent()
+        }
+
+        composable(
+            route = Screen.Auth.route,
+
+        ) {
+            authScreenContent()
         }
     }
 }
 
+// slideInHorizontally() slideOutHorizontally()
 sealed class Screen(val route: String) {
-    object Posts: Screen("posts")
-    object CreatePost: Screen("create_post")
-    object Map: Screen("map")
-    object Profile: Screen("profile")
+    object Posts : Screen("posts")
+    object CreatePost : Screen("create_post")
+    object Map : Screen("map")
+    object Profile : Screen("profile")
+    object Auth : Screen("auth")
 }
