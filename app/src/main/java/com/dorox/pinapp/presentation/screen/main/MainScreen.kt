@@ -1,48 +1,44 @@
 package com.dorox.pinapp.presentation.screen.main
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarItem
+import androidx.compose.material3.ShortNavigationBarItemDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.dorox.pinapp.R
 import com.dorox.pinapp.presentation.navigation.NavGraph
 import com.dorox.pinapp.presentation.navigation.NavigationItem
 import com.dorox.pinapp.presentation.navigation.Screen
+import com.dorox.pinapp.presentation.screen.auth.AuthScreen
 import com.dorox.pinapp.presentation.screen.creation.CreatePostScreen
 import com.dorox.pinapp.presentation.screen.map.MapScreen
 import com.dorox.pinapp.presentation.screen.posts.PostsScreen
-import com.dorox.pinapp.ui.theme.Black100
-import com.dorox.pinapp.ui.theme.Gray100
-import com.dorox.pinapp.ui.theme.Orange100
+import com.dorox.pinapp.presentation.screen.profile.ProfileScreen
+import com.dorox.pinapp.ui.theme.Gray550
+import com.dorox.pinapp.ui.theme.Orange10
 import com.dorox.pinapp.ui.theme.Orange200
+import com.dorox.pinapp.ui.theme.Orange50
+import com.dorox.pinapp.ui.theme.White100
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,49 +49,26 @@ fun MainScreen() {
     val currentRoute = backStackEntry?.destination?.route
 
     Scaffold(
-        topBar = {
-            if (currentRoute == Screen.CreatePost.route) {
-                CreateScreenTopAppBar(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-        },
-        floatingActionButton = {
-            if (currentRoute == Screen.Posts.route) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(Screen.CreatePost.route)
-                    },
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_add_ad),
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                }
-            }
-        },
         bottomBar = {
-            AppBottomBar(
+            AppBottomNavigationBar(
                 navController = navController,
                 currentRoute = currentRoute,
                 backStackEntry = backStackEntry
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.navigationBars
     ) { innerPadding ->
 
         NavGraph(
-            //modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                .consumeWindowInsets(WindowInsets.navigationBars),
             navHostController = navController,
             postsScreenContent = {
                 PostsScreen(
-                    innerPadding = innerPadding,
+                    onCreatePostClick = {
+                        navController.navigate(Screen.CreatePost.route)
+                    },
                 )
             },
             mapScreenContent = {
@@ -103,63 +76,48 @@ fun MainScreen() {
             },
             createPostScreenContent = {
                 CreatePostScreen(
-                    innerPadding = innerPadding,
                     onFinished = {
                         navController.popBackStack()
                     },
 
-                )
+                    )
             },
             profileScreenContent = {
+                ProfileScreen(
+                    onRegisterButtonClick = {
+                        navController.navigate(Screen.Auth.route) {
+                            popUpTo(Screen.Profile.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            },
+            authScreenContent = {
+                AuthScreen {
 
+                }
             }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CreateScreenTopAppBar(
-    onClick: () -> Unit
-) {
-    TopAppBar(
-        modifier = Modifier.shadow(4.dp),
-        title = {
-            Text(
-                text = "Новое объявление",
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onClick() }
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_back),
-                    contentDescription = null
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Orange100,
-        )
-    )
-}
+
 
 @Composable
-private fun AppBottomBar(
+private fun AppBottomNavigationBar(
     navController: NavHostController,
     currentRoute: String?,
     backStackEntry: NavBackStackEntry?
 ) {
-
     AnimatedVisibility(
         visible = currentRoute in listOf(Screen.Posts.route, Screen.Map.route, Screen.Profile.route),
     ) {
-        NavigationBar(
-            modifier = Modifier
-                .shadow(4.dp),
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+
+        ShortNavigationBar(
+            modifier = Modifier.shadow(4.dp),
+            containerColor = White100
+
         ) {
             val navItems = listOf(
                 NavigationItem.Posts,
@@ -174,7 +132,8 @@ private fun AppBottomBar(
                     it.route == item.screen.route
                 } ?: false
 
-                NavigationBarItem(
+                ShortNavigationBarItem(
+                    modifier = Modifier.padding(vertical = 0.dp),
                     selected = selected,
                     onClick = {
                         if (!selected) {
@@ -190,20 +149,24 @@ private fun AppBottomBar(
                     },
                     icon = {
                         Icon(
+                            modifier = Modifier,
                             imageVector = item.icon,
                             contentDescription = null
                         )
                     },
                     label = {
-                        Text(text = item.label)
+                        Text(
+                            text = item.label,
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     },
-                    colors = NavigationBarItemDefaults.colors(
+                    colors = ShortNavigationBarItemDefaults.colors(
                         selectedTextColor = Orange200,
                         selectedIconColor = Orange200,
-                        unselectedIconColor = Gray100,
-                        unselectedTextColor = Gray100,
-                        indicatorColor = Orange100
-                    )
+                        unselectedIconColor = Gray550,
+                        unselectedTextColor = Gray550,
+                        selectedIndicatorColor = Orange50
+                    ),
                 )
             }
         }
