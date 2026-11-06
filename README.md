@@ -5,10 +5,10 @@
 - Kotlin Coroutines
 - MVVM
 - Hilt
-- Coil (отображение фото)
-- Navigation Compose (Навигация между экранами) 
+- Coil
+- Navigation Compose
 - Material3 Design 
-- Firebase (Хранение объявлений и фото, регистрация и авторизация)
+- Firebase
 - 
 
 Экран авторизации и регистрации
