@@ -1,4 +1,4 @@
-<img width="404" height="856" alt="создание объявления" src="https://github.com/user-attachments/assets/6a10145e-4953-4534-8c25-22923bc8f381" />Приложение "Потеряно и найдено" 
+Приложение "Потеряно и найдено" 
 Создание объявлений о потерянных и найденных вещах и животных
 
 Использованные технологии:
@@ -28,12 +28,12 @@
 <img width="404" height="856" alt="создание объявления" src="https://github.com/user-attachments/assets/48465f46-5ca0-4756-8f9f-449869b2f0cb" />&nbsp;
 
 Экран профиль пользователя
-<img width="402" height="852" alt="Снимок экрана 2026-11-05 164318" src="https://github.com/user-attachments/assets/4d8a1b59-5782-4d85-b4a2-126591b4d3f4" />
+
+<img width="402" height="852" alt="Снимок экрана 2026-11-05 164318" src="https://github.com/user-attachments/assets/4d8a1b59-5782-4d85-b4a2-126591b4d3f4" />&nbsp;
 
 Экран радактирования и удаления объявлений
 
-
-<img width="406" height="857" alt="редактирование объявлений" src="https://github.com/user-attachments/assets/f523d66a-ac69-4880-9637-d631c265f588" />
+<img width="406" height="857" alt="редактирование объявлений" src="https://github.com/user-attachments/assets/f523d66a-ac69-4880-9637-d631c265f588" />&nbsp;
 
 
 
