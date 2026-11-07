@@ -1,15 +1,14 @@
 package com.dorox.pinapp.presentation.screen.posts
 
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dorox.pinapp.data.repository.CityRepositoryImpl
 import com.dorox.pinapp.domain.entity.Category
 import com.dorox.pinapp.domain.entity.Post
 import com.dorox.pinapp.domain.usecase.GetAllPostsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,7 +16,8 @@ import kotlin.collections.filter
 
 @HiltViewModel
 class PostsViewModel @Inject constructor(
-    private val getAllPostsUseCase: GetAllPostsUseCase
+    private val getAllPostsUseCase: GetAllPostsUseCase,
+    private val cityRepositoryImpl: CityRepositoryImpl
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PostsState())
@@ -28,9 +28,12 @@ class PostsViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
 
+
+
     init {
         loadPosts()
     }
+
 
     // Загрузка всех постов из БД Firebase
     private fun loadPosts() {
@@ -86,49 +89,72 @@ class PostsViewModel @Inject constructor(
 
 
     fun processCommand(command: PostsCommand) {
-
-            when (command) {
-                is PostsCommand.InputSearchQuery -> {
-                    viewModelScope.launch {
-                        _state.update {
-                            it.copy(query = command.query)
-                        }
+        when (command) {
+            is PostsCommand.InputSearchQuery ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(query = command.query)
                     }
                 }
 
-                is PostsCommand.SelectCategory -> {
-                    viewModelScope.launch {
-                        _state.update {
-                            it.copy(selectedCategory = command.category)
-                        }
+            is PostsCommand.SelectCategory ->
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(selectedCategory = command.category)
                     }
+                }
+
+            is PostsCommand.SelectCity -> {
+                _state.update {
+                    it.copy(selectedCity = command.city)
                 }
             }
-    }
 
+            PostsCommand.ClearCity -> {
+                _state.update {
+                    it.copy(selectedCity = null)
+                }
+            }
+
+            PostsCommand.ClearQuery -> {
+                _state.update {
+                    it.copy(query = "")
+                }
+            }
+        }
+    }
 }
 
 sealed interface PostsCommand {
 
     data class InputSearchQuery(val query: String) : PostsCommand
     data class SelectCategory(val category: Category) : PostsCommand
+    data class SelectCity(val city: String): PostsCommand
+    data object ClearCity: PostsCommand
+    data object ClearQuery: PostsCommand
 }
 
 data class PostsState(
     val query: String = "",
     val selectedCategory: Category = Category.ALL,
+    val selectedCity: String? = null,
     val posts: List<Post> = emptyList(),
     val error: String? = null,
     val isLoading: Boolean = false
 ) {
 
     val filteredPosts: List<Post>
-        get() {
-            return when(selectedCategory) {
-                Category.ALL -> posts
-                else -> posts.filter {
-                    it.category == selectedCategory.text
-                }
-            }
+        get() = posts.filter { post ->
+            val equalQuery = query.isBlank() ||
+                post.title.contains(query, ignoreCase = true)
+
+            val equalCity = selectedCity == null ||
+                post.address.substringBefore(",").trim()
+                    .equals(selectedCity.substringBefore(",").trim(), ignoreCase = true)
+
+            val equalCategory = selectedCategory == Category.ALL ||
+                post.category == selectedCategory.text
+
+            equalQuery && equalCity && equalCategory
         }
 }

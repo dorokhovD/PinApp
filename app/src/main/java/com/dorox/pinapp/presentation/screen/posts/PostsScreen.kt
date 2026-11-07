@@ -1,6 +1,5 @@
 package com.dorox.pinapp.presentation.screen.posts
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,40 +8,41 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,73 +52,98 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.dorox.pinapp.R
 import com.dorox.pinapp.domain.entity.Category
 import com.dorox.pinapp.domain.entity.Post
 import com.dorox.pinapp.domain.entity.Status
-import com.dorox.pinapp.presentation.screen.postdetails.PostDetailsSheet
-import com.dorox.pinapp.presentation.screen.postdetails.PostDetailsViewModel
+import com.dorox.pinapp.presentation.screen.post_details.PostDetailsSheet
+import com.dorox.pinapp.presentation.screen.post_details.PostDetailsViewModel
+import com.dorox.pinapp.presentation.screen.select_city.SelectCitySheet
+import com.dorox.pinapp.presentation.screen.select_city.SelectCityViewModel
 import com.dorox.pinapp.presentation.utils.toShortDateString
-import com.dorox.pinapp.ui.theme.CustomTextButton
+import com.dorox.pinapp.ui.theme.Black100
+import com.dorox.pinapp.ui.theme.CustomOutlinedTextField
+import com.dorox.pinapp.ui.theme.ErrorButton
 import com.dorox.pinapp.ui.theme.Gray100
 import com.dorox.pinapp.ui.theme.Gray150
-import com.dorox.pinapp.ui.theme.Gray400
 import com.dorox.pinapp.ui.theme.Gray50
 import com.dorox.pinapp.ui.theme.Gray500
+import com.dorox.pinapp.ui.theme.Gray550
 import com.dorox.pinapp.ui.theme.Green100
 import com.dorox.pinapp.ui.theme.Green200
-import com.dorox.pinapp.ui.theme.InfoTextBox
+import com.dorox.pinapp.ui.theme.LoadingIndicator
 import com.dorox.pinapp.ui.theme.Orange10
+import com.dorox.pinapp.ui.theme.Orange100
 import com.dorox.pinapp.ui.theme.Orange200
+import com.dorox.pinapp.ui.theme.TextBoxWithStartIcon
+import com.dorox.pinapp.ui.theme.Orange300
+import com.dorox.pinapp.ui.theme.Orange400
+import com.dorox.pinapp.ui.theme.Orange5
 import com.dorox.pinapp.ui.theme.Orange50
 import com.dorox.pinapp.ui.theme.Red100
 import com.dorox.pinapp.ui.theme.Red200
-import com.dorox.pinapp.ui.theme.Red300
 import com.dorox.pinapp.ui.theme.SelectCategoryFilterChips
 import com.dorox.pinapp.ui.theme.White100
-import com.dorox.pinapp.ui.theme.Yellow50
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostsScreen(
-    viewModel: PostsViewModel = hiltViewModel(),
+    postsViewModel: PostsViewModel = hiltViewModel(),
     onCreatePostClick: () -> Unit,
-    postDetailsViewModel: PostDetailsViewModel = hiltViewModel()
+    postDetailsViewModel: PostDetailsViewModel = hiltViewModel(),
+    selectCityViewModel: SelectCityViewModel = hiltViewModel()
 ) {
 
-    val state by viewModel.state.collectAsState()
+    val state by postsViewModel.state.collectAsState()
 
-    val sheetState = rememberModalBottomSheetState(
+    val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showBottomSheetPostDetails by remember { mutableStateOf(false) }
+    var showBottomSheetSelectCity by remember { mutableStateOf(false) }
 
     val pullToRefreshState = rememberPullToRefreshState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val isRefreshing by postsViewModel.isRefreshing.collectAsState()
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    val categories = Category.entries.filter {
+        it != Category.NOT_SELECTED
+    }.toList()
+
+    var selectedChipCategory by remember { mutableStateOf(Category.ALL) }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier,
         topBar = {
             PostsScreenTopAppBar(
                 onRefreshClick = {
-                    viewModel.refreshPosts()
+                    postsViewModel.refreshPosts()
                 },
-                onSelectCategoryClick = {
-                    viewModel.processCommand(PostsCommand.SelectCategory(category = it))
+//                onSelectCategoryClick = {
+//                    viewModel.processCommand(PostsCommand.SelectCategory(category = it))
+//                },
+                //scrollBehavior = scrollBehavior
+                cityName = state.selectedCity,
+                onSelectCityClick = {
+                    showBottomSheetSelectCity = true
                 },
-                scrollBehavior = scrollBehavior
+                onClearCityClick = {
+                    postsViewModel.processCommand(PostsCommand.ClearCity)
+                }
             )
         },
         floatingActionButton = {
@@ -126,11 +151,10 @@ fun PostsScreen(
                 onClick = {
                     onCreatePostClick()
                 },
-                contentColor = Orange200,
-                containerColor = Gray150,
-                shape = CircleShape,
-
-                ) {
+                containerColor = White100,
+                contentColor = Orange300,
+                shape = RoundedCornerShape(24.dp),
+            ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_add_ad),
                     contentDescription = null
@@ -143,10 +167,10 @@ fun PostsScreen(
         PullToRefreshBox(
             modifier = Modifier
                 .padding(innerPadding)
-                .background(color = Gray150),
+                .background(color = Orange5),
             isRefreshing = isRefreshing,
             onRefresh = {
-                viewModel.refreshPosts()
+                postsViewModel.refreshPosts()
             },
             state = pullToRefreshState,
             indicator = {
@@ -154,68 +178,131 @@ fun PostsScreen(
                     modifier = Modifier.align(Alignment.TopCenter),
                     state = pullToRefreshState,
                     isRefreshing = isRefreshing,
-                    color = Orange200,
-                    containerColor = Gray150
+                    color = Orange300,
+                    containerColor = White100
                 )
             }
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+
+            Column(
+
             ) {
+                if (state.isLoading && state.posts.isEmpty()) {
+                    LoadingIndicator()
 
-                item {
-                    Spacer(Modifier.height(4.dp))
                 }
-
-                items(
-                    items = state.filteredPosts,
-                    key = { it.postId }
-                ) {post ->
-                    PostCard(
-                        onPostClick = { postId ->
-                            //selectedPostId = postId
-                            postDetailsViewModel.loadPostDetails(postId)
-                            showBottomSheet = true
-                        },
-                        post = post,
+                if (state.error != null && state.posts.isEmpty()) {
+                    ErrorButton(
+                        errorText = state.error.toString(),
+                        onRefreshButtonClick = {
+                            postsViewModel.refreshPosts()
+                        }
                     )
                 }
 
-                if (state.isLoading && state.posts.isEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    //verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
                     item {
-                        LoadingBox()
+                        CustomOutlinedTextField(
+                            value = state.query,
+                            label = {
+                                Text("Поиск объявления")
+                            },
+                            onValueChange = { query ->
+                                postsViewModel.processCommand(PostsCommand.InputSearchQuery(query))
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_search),
+                                    contentDescription = null,
+                                    tint = Orange300
+                                )
+                            },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        postsViewModel.processCommand(PostsCommand.ClearQuery)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+                                        contentDescription = null,
+                                        tint = Orange300
+                                    )
+                                }
+                            }
+                        )
                     }
-                }
-                if (state.error != null && state.posts.isEmpty()) {
+
                     item {
-                        ErrorBox(
-                            state = state,
-                            viewModel = viewModel
+                        SelectCategoryFilterChips(
+                            modifier = Modifier,
+                            onSelectCategoryClick = {
+                                selectedChipCategory = it
+                                postsViewModel.processCommand(PostsCommand.SelectCategory(category = it))
+                            },
+                            categories = categories,
+                            selectedChipCategory = selectedChipCategory,
+                        )
+                    }
+
+
+
+                    items(
+                        items = state.filteredPosts,
+                        key = { it.postId }
+                    ) { post ->
+                        PostCard(
+                            modifier = Modifier.padding(horizontal = 0.dp, vertical = 4.dp),
+                            onPostClick = { postId ->
+                                //selectedPostId = postId
+                                postDetailsViewModel.loadPostDetails(postId)
+                                showBottomSheetPostDetails = true
+                            },
+                            post = post,
                         )
                     }
                 }
-                item {
-                    Spacer(Modifier.height(4.dp))
+            }
+
+            if (showBottomSheetPostDetails) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        //selectedPostId = null
+                        postDetailsViewModel.clearPostDetails()
+                        showBottomSheetPostDetails = false
+                    },
+                    containerColor = White100,
+                    sheetState = bottomSheetState,
+                    contentWindowInsets = { WindowInsets.systemBars.only(WindowInsetsSides.Bottom) }
+                ) {
+                    PostDetailsSheet(
+                        viewModel = postDetailsViewModel
+                    )
                 }
             }
-        }
-
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                modifier = Modifier,
-                onDismissRequest = {
-                    //selectedPostId = null
-                    postDetailsViewModel.clearPostDetails()
-                    showBottomSheet = false
-                },
-                containerColor = MaterialTheme.colorScheme.background,
-                sheetState = sheetState
-            ) {
-                PostDetailsSheet(
-                    viewModel = postDetailsViewModel
-                )
+            if (showBottomSheetSelectCity) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showBottomSheetSelectCity = false
+                    },
+                    containerColor = Orange5,
+                    sheetState = bottomSheetState,
+                    //contentWindowInsets = { WindowInsets.systemBars.only(WindowInsetsSides.Bottom) }
+                ) {
+                    SelectCitySheet(
+                        viewModel = selectCityViewModel,
+                        onCitySelect = { city ->
+                            postsViewModel.processCommand(PostsCommand.SelectCity(city = city))
+                            showBottomSheetSelectCity = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -226,23 +313,82 @@ fun PostsScreen(
 @Composable
 private fun PostsScreenTopAppBar(
     onRefreshClick: () -> Unit,
-    onSelectCategoryClick: (Category) -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    cityName: String? = null,
+    onSelectCityClick: () -> Unit,
+    //scrollBehavior: TopAppBarScrollBehavior
+    onClearCityClick: () -> Unit
 ) {
-
-    val categories = Category.entries.filter {
-        it != Category.NOT_SELECTED
-    }.toList()
-
-    var selectedChipCategory by remember { mutableStateOf(Category.ALL) }
 
     Column {
         TopAppBar(
             title = {
-                Text(
-                    text = "Объявления",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(1.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val containerColor = if (cityName == null) White100 else Orange300.copy(0.1f)
+                    val contentColor = if (cityName == null) Gray500 else Orange300
+                    val borderColor = if (cityName == null) Gray50 else Orange300
+
+                    Button(
+                        modifier = Modifier,
+                        onClick = {
+                            onSelectCityClick()
+                        },
+                        shape =  RoundedCornerShape(24.dp),
+
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = containerColor,
+                            contentColor = contentColor
+                        ),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = borderColor
+                        )
+                    ) {
+                        val text = if (cityName == null)
+                            "Выбрать город"
+                        else
+                        "г. ${cityName.substringBefore(",")}"
+
+                        Text(
+                            modifier = Modifier,
+                            text = text,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        if (cityName != null) {
+
+//                            IconButton(
+//                                modifier = Modifier,
+//                                onClick = {
+//                                    onClearCityClick()
+//                                }
+//                            ) {
+//                                Icon(
+//                                    modifier = Modifier.size(20.dp),
+//                                    imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+//                                    contentDescription = null,
+//                                    tint = Black100
+//                                )
+//                            }
+                        }
+                    }
+                    if (cityName != null) {
+
+                        TextButton(
+                            onClick = {
+                                onClearCityClick()
+                            }
+                        ) {
+                            Text(
+                                text = "Сбросить"
+                            )
+                        }
+                    }
+
+                }
+
             },
             actions = {
                 IconButton(
@@ -255,23 +401,25 @@ private fun PostsScreenTopAppBar(
                     )
                 }
             },
-            scrollBehavior = scrollBehavior,
+            //scrollBehavior = scrollBehavior,
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = White100,
-                scrolledContainerColor = White100
+                containerColor = Orange5
             )
         )
+
+
+
 //        AnimatedVisibility(
 //            visible =
 //        ) {
-            SelectCategoryFilterChips(
-                onSelectCategoryClick = {
-                    onSelectCategoryClick(it)
-                    selectedChipCategory = it
-                },
-                categories = categories,
-                selectedChipCategory = selectedChipCategory,
-            )
+//            SelectCategoryFilterChips(
+//                onSelectCategoryClick = {
+//                    onSelectCategoryClick(it)
+//                    selectedChipCategory = it
+//                },
+//                categories = categories,
+//                selectedChipCategory = selectedChipCategory,
+//            )
 //        }
 
 
@@ -288,12 +436,13 @@ private fun PostCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
             .clickable {
                 onPostClick(post.postId)
             },
         elevation = CardDefaults.cardElevation(0.5.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = White100
         ),
         shape = RoundedCornerShape(24.dp),
     ) {
@@ -308,32 +457,54 @@ private fun PostCard(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    val statusBackgroundColor = if (post.status == Status.FOUND.text) Green100 else Red100
-                    val statusTextColor = if (post.status == Status.FOUND.text) Green200 else Red200
+                    val statusBackgroundColor =
+                        if (post.status == Status.FOUND.text) Green100
+                        else Red100
 
-                    InfoTextBox(
-                        text = post.status,
-                        colorText = statusTextColor,
-                        colorBackground = statusBackgroundColor,
+                    val statusTextColor =
+                        if (post.status == Status.FOUND.text) Green200
+                        else Red200
+
+                    Box(
+                        modifier = Modifier
+                            .size(5.dp)
+                            .clip(CircleShape)
+                            .background(color = statusTextColor)
+                            .padding(0.dp)
+                            .align(Alignment.CenterVertically)
                     )
 
-                    InfoTextBox(
+                    Spacer(Modifier.width(4.dp))
+
+                    TextBoxWithStartIcon(
+                        text = post.status,
+                        colorText = statusTextColor,
+                        colorBackground = Color.Transparent,
+                        horizontalDp = 0.dp,
+                    )
+
+                    TextBoxWithStartIcon(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp),
                         text = post.createdAt.toShortDateString(),
-                        colorText = Gray100,
+                        colorText = Gray500,
                         colorBackground = Color.Transparent,
                         horizontalDp = 0.dp,
                         contentAlignment = Alignment.TopEnd
                     )
                 }
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = post.title,
                     style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2
+                    maxLines = 2,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
                 )
 
 //                Spacer(Modifier.height(4.dp))
@@ -345,55 +516,55 @@ private fun PostCard(
 //                    overflow = TextOverflow.Ellipsis,
 //                )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
 
-                InfoTextBox(
+                TextBoxWithStartIcon(
                     text = post.address,
-                    colorText = Gray500,
+                    colorText = Black100,
                     colorBackground = Color.Transparent,
                     horizontalDp = 0.dp,
                     icon = ImageVector.vectorResource(R.drawable.ic_location_pin),
-                    tint = Gray500
+                    tint = Black100
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
 
                 if (post.reward.isNotEmpty()) {
-                    InfoTextBox(
-                        text = "${post.reward} ₽",
-                        colorText = Orange200,
-                        colorBackground = Orange10,
+                    TextBoxWithStartIcon(
+                        text = stringResource(R.string.reward, post.reward),
+                        colorText = Orange300,
+                        fontWeightText = FontWeight.Bold,
+                        colorBackground = Orange5,
+                        horizontalDp = 8.dp,
+                        verticalDp = 4.dp,
                         icon = ImageVector.vectorResource(R.drawable.ic_money_bag),
-                        tint = Orange200
+                        tint = Orange300
                     )
                 }
             }
 
             if (post.imageUrl != "") {
 
-                Spacer(Modifier.width(8.dp))
-
-                Column(
+                Card(
                     modifier = Modifier
-                        .weight(1f),
-//                        .background(color = Gray500),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .weight(1f)
+                        .sizeIn(75.dp, 75.dp, 75.dp, 75.dp)
+                        .padding(start = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(1.dp)
                 ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .sizeIn(
-                                maxHeight = 100.dp,
-                                maxWidth = 100.dp,
-                                minWidth = 100.dp,
-                                minHeight = 100.dp
-                            )
-                            .clip(RoundedCornerShape(16.dp)),
-                        model = post.imageUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(R.drawable.ic_image_50)
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier,
+                            model = post.imageUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.ic_image_50)
+                        )
+                    }
 
                 }
             }
@@ -410,7 +581,8 @@ private fun SearchOutlinedTextField(
 
     OutlinedTextField(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .height(32.dp),
         value = query,
         onValueChange = onQueryChange,
         placeholder = {
@@ -419,7 +591,7 @@ private fun SearchOutlinedTextField(
                 color = Gray100,
             )
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color.Black,
             unfocusedTextColor = Gray100,
@@ -438,56 +610,17 @@ private fun SearchOutlinedTextField(
         trailingIcon = {
             IconButton(
                 onClick = {
-
-                }
-            ) { }
-            Icon(
-                modifier = Modifier,
-                imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
-                tint = Gray100,
-                contentDescription = null
-            )
-        }
-    )
-}
-
-@Composable
-private fun ErrorBox(
-    state: PostsState,
-    viewModel: PostsViewModel
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column() {
-            Text("${state.error}")
-
-            Spacer(Modifier.height(8.dp))
-
-            CustomTextButton(
-                modifier = Modifier.padding(horizontal = 50.dp),
-                onClick = {
-                    viewModel.refreshPosts()
+                    onQueryChange("")
                 }
             ) {
-                Text(
-                    text = "Повторить"
+                Icon(
+                    modifier = Modifier,
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_clear),
+                    tint = Gray100,
+                    contentDescription = null
                 )
             }
+
         }
-
-    }
-}
-
-@Composable
-private fun LoadingBox() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
+    )
 }
