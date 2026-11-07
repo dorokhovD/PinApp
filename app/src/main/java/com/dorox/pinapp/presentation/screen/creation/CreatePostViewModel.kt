@@ -4,11 +4,10 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.toUri
 import com.dorox.pinapp.domain.entity.Category
 import com.dorox.pinapp.domain.entity.Status
-import com.dorox.pinapp.domain.mapper.CreatePostMapper
-import com.dorox.pinapp.domain.usecase.AddPostUseCase
+import com.dorox.pinapp.domain.mapper.toPost
+import com.dorox.pinapp.domain.usecase.CreatePostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
-    private val addPostUseCase: AddPostUseCase
+    private val createPostUseCase: CreatePostUseCase
 )  : ViewModel() {
 
     private val _state = MutableStateFlow<CreatePostState>(CreatePostState.Creation())
@@ -35,7 +34,7 @@ class CreatePostViewModel @Inject constructor(
             is CreatePostCommand.AddImage -> {
                 _state.update { prevState ->
                     if (prevState is CreatePostState.Creation) {
-                        prevState.copy(imageUri = command.uri.toString())
+                        prevState.copy(imageUrl = command.uri.toString())
                     } else {
                         prevState
                     }
@@ -45,7 +44,7 @@ class CreatePostViewModel @Inject constructor(
             is CreatePostCommand.DeleteImage -> {
                 _state.update { prevState ->
                     if (prevState is CreatePostState.Creation) {
-                        prevState.copy(imageUri = null)
+                        prevState.copy(imageUrl = "")
                     } else {
                         prevState
                     }
@@ -88,22 +87,7 @@ class CreatePostViewModel @Inject constructor(
                     }
                 }
             }
-            CreatePostCommand.Save -> {
-                viewModelScope.launch {
-                    _state.update { prevState ->
-                        if (prevState is CreatePostState.Creation) {
-                            val post = CreatePostMapper.toPost(prevState)
-                            addPostUseCase(
-                                post = post,
-                                imageUri = post.imageUrl?.toUri()
-                            )
-                            CreatePostState.Finished
-                        } else {
-                            prevState
-                        }
-                    }
-                }
-            }
+
             is CreatePostCommand.SelectCategory -> {
                 _state.update { prevState ->
                     if (prevState is CreatePostState.Creation) {
@@ -131,6 +115,52 @@ class CreatePostViewModel @Inject constructor(
                         prevState
                     }
 
+                }
+            }
+            CreatePostCommand.Save -> {
+                val currentState = _state.value
+
+                // Если текущий стейт не Creation - вернуться
+                if (currentState !is CreatePostState.Creation) return
+
+                // Если статус загрузки true - вернуться
+                if (currentState.isLoading) return
+                savePost(currentState)
+            }
+        }
+    }
+    private fun savePost(state: CreatePostState.Creation) {
+        viewModelScope.launch {
+            // Меняет статус загрузки на true и сбрасывает ошибку
+            _state.update { prevState ->
+                if (prevState is CreatePostState.Creation) {
+                    prevState.copy(
+                        isLoading = true,
+                        error = null
+                    )
+                } else {
+                    prevState
+                }
+            }
+            val post = state.toPost()
+            val imageUri = state.imageUrl.toUri()
+            val result = createPostUseCase(
+                post = post,
+                imageUri = imageUri
+            )
+            _state.update { prevState ->
+                if (result.isSuccess) {
+                    CreatePostState.Finished
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Ошибка при сохранении"
+                    if (prevState is CreatePostState.Creation) {
+                        prevState.copy(
+                            isLoading = false,
+                            error = error
+                        )
+                    } else {
+                        prevState
+                    }
                 }
             }
         }
@@ -172,24 +202,19 @@ sealed interface CreatePostState {
         val category: Category = Category.NOT_SELECTED,
         val contact: String = "",
         val address: String = "",
-        val imageUri: String? = null,
+        val imageUrl: String = "",
         val reward: String = "",
         val isClosed: Boolean = false,
+        val isLoading: Boolean = false,
+        val error: String? = null
     ) : CreatePostState {
 
         val isSaveEnable: Boolean
-            get() {
-                return when {
-                    title.isBlank() -> false
-                    status.text.isBlank() -> false
-                    category.text.isBlank() -> false
-                    contact.isBlank() -> false
-                    address.isBlank() -> false
-                    else -> {
-                        true
-                    }
-                }
-            }
+            get() = title.isNotBlank() &&
+                    status.text.isNotBlank() &&
+                    category.text.isNotBlank() &&
+                    contact.isNotBlank() &&
+                    address.isNotBlank()
     }
     data object Finished : CreatePostState
 }
