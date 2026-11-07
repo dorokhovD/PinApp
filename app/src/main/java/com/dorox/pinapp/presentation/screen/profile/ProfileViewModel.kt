@@ -11,7 +11,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    //private val authRepository: AuthRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val signOutUseCase: SignOutUseCase
 ): ViewModel() {
@@ -45,14 +44,6 @@ class ProfileViewModel @Inject constructor(
         _state.update {
             ProfileState.Anonymous
         }
-    }
-
-    fun checkAuthorized() {
-        loadCurrentUser()
-    }
-
-    fun onAuthorizedSuccess() {
-        loadCurrentUser()
     }
 
 }
