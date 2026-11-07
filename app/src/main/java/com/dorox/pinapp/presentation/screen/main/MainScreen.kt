@@ -34,9 +34,14 @@ import com.dorox.pinapp.presentation.screen.creation.CreatePostScreen
 import com.dorox.pinapp.presentation.screen.map.MapScreen
 import com.dorox.pinapp.presentation.screen.posts.PostsScreen
 import com.dorox.pinapp.presentation.screen.profile.ProfileScreen
+import com.dorox.pinapp.presentation.screen.user_posts.UsersPostsScreen
+import com.dorox.pinapp.ui.theme.Gray400
+import com.dorox.pinapp.ui.theme.Gray500
 import com.dorox.pinapp.ui.theme.Gray550
 import com.dorox.pinapp.ui.theme.Orange10
 import com.dorox.pinapp.ui.theme.Orange200
+import com.dorox.pinapp.ui.theme.Orange300
+import com.dorox.pinapp.ui.theme.Orange5
 import com.dorox.pinapp.ui.theme.Orange50
 import com.dorox.pinapp.ui.theme.White100
 
@@ -90,13 +95,27 @@ fun MainScreen() {
                                 inclusive = true
                             }
                         }
+                    },
+                    onUserPostsClick = {
+                        navController.navigate(Screen.UserPosts.route) {
+
+                        }
                     }
                 )
             },
             authScreenContent = {
-                AuthScreen {
-
-                }
+                AuthScreen(
+                    onFinished = {
+                        navController.navigate(Screen.Profile.route)
+                    },
+                )
+            },
+            userPostsScreenContent = {
+                UsersPostsScreen(
+                    onBackIconClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         )
     }
@@ -161,11 +180,11 @@ private fun AppBottomNavigationBar(
                         )
                     },
                     colors = ShortNavigationBarItemDefaults.colors(
-                        selectedTextColor = Orange200,
-                        selectedIconColor = Orange200,
-                        unselectedIconColor = Gray550,
-                        unselectedTextColor = Gray550,
-                        selectedIndicatorColor = Orange50
+                        selectedTextColor = Orange300,
+                        selectedIconColor = Orange300,
+                        unselectedIconColor = Gray500,
+                        unselectedTextColor = Gray500,
+                        selectedIndicatorColor = Orange5
                     ),
                 )
             }
