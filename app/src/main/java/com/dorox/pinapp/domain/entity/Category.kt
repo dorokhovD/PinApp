@@ -1,11 +1,18 @@
 package com.dorox.pinapp.domain.entity
 
-enum class Category(val text: String) {
+import android.text.style.IconMarginSpan
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.dorox.pinapp.ui.icons.ic_pets
 
-    NOT_SELECTED(""),
+
+enum class Category(val text: String, val icon: ImageVector? = null) {
+
+    NOT_SELECTED(text = ""),
+    ALL("Все"),
     THINGS("Личные вещи"),
-    PETS("Животные"),
+    PETS("Животные", icon = ic_pets),
     ELECTRONICS("Электроника"),
     DOCUMENTS("Документы"),
+    OTHER("Другое"),
 
 }
