@@ -33,7 +33,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-//        buildConfigField("String", "MAPS_API_KEY", "\"${mapsApiKey}\"")
+        buildConfigField("String", "MAPS_API_KEY", "\"${mapsApiKey}\"")
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
@@ -58,6 +58,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
