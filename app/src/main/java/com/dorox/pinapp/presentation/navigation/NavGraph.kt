@@ -25,7 +25,8 @@ fun NavGraph(
     mapScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     createPostScreenContent: @Composable () -> Unit,
-    authScreenContent: @Composable () -> Unit
+    authScreenContent: @Composable () -> Unit,
+    userPostsScreenContent: @Composable () -> Unit
 ) {
 
 
@@ -74,6 +75,14 @@ fun NavGraph(
         ) {
             authScreenContent()
         }
+
+        composable(
+            route = Screen.UserPosts.route,
+
+            ) {
+            userPostsScreenContent()
+        }
+
     }
 }
 
@@ -84,4 +93,5 @@ sealed class Screen(val route: String) {
     object Map : Screen("map")
     object Profile : Screen("profile")
     object Auth : Screen("auth")
+    object UserPosts : Screen("user_posts")
 }
